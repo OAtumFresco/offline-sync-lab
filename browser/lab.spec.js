@@ -1,19 +1,29 @@
 import { test, expect, openLab, saveNote } from './fixture.js';
 
-test('real offline reload preserves the queue and restores delivery', async ({ page, context, lab }) => {
+test('reload with the server stopped preserves the queue and restores delivery', async ({ page, lab }) => {
   await openLab(page, lab);
-  await context.setOffline(true);
+  expect(lab.notes).toHaveLength(0);
+  // Exercise actual endpoint unavailability, independently of browser offline emulation.
+  await lab.stop();
   await saveNote(page, 'Saved before offline reload');
   await expect(page.locator('#pending-count')).toHaveText('1 pending');
-  expect(lab.notes).toHaveLength(0);
   await page.reload();
   await expect(page.locator('#outbox')).toContainText('Saved before offline reload');
   await saveNote(page, 'Saved after offline reload');
   await expect(page.locator('#pending-count')).toHaveText('2 pending');
-  await context.setOffline(false);
+  await lab.start();
+  await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await expect(page.locator('#pending-count')).toHaveText('0 pending');
   await expect(page.locator('#saved-count')).toHaveText('2 saved');
   expect(lab.notes.map(note => note.text)).toEqual(['Saved before offline reload', 'Saved after offline reload']);
+});
+
+test('a stale offline hint cannot prevent real delivery', async ({ page, lab }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'onLine', { get: () => false }));
+  await openLab(page, lab);
+  await saveNote(page, 'Reachability comes from the request');
+  await expect(page.locator('#saved-count')).toHaveText('1 saved');
+  expect(lab.notes).toHaveLength(1);
 });
 
 test('losing the response after commit recovers one server note', async ({ page, lab }) => {

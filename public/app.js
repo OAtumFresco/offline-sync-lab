@@ -7,7 +7,9 @@ const loseResponse = $('lose-response');
 let timer;
 let syncing = null;
 let serverNotes = [];
-const canSend = () => !offline.checked && navigator.onLine;
+// navigator.onLine can remain stale or report a network that cannot reach us.
+// Only the user's simulation pauses delivery; real requests determine reachability.
+const canSend = () => !offline.checked;
 const status = text => { $('status').textContent = text; };
 
 function noteItem(text, detail) {

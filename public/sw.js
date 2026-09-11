@@ -1,4 +1,4 @@
-const CACHE = 'offline-sync-lab-shell-v1';
+const CACHE = 'offline-sync-lab-shell-v2';
 const FILES = ['/', '/style.css', '/app.js', '/outbox.js', '/sync.js'];
 
 self.addEventListener('install', event => {
