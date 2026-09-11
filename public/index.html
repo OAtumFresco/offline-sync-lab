@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <title>Offline Sync Lab</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">RUI ANDRADE / ENGINEERING LAB</p>
+      <h1>A lost connection.<br>A note that stays.</h1>
+      <p class="intro">Save a sample note locally. Send it when the connection returns. Retry a lost response without creating a second note.</p>
+    </header>
+    <section class="controls" aria-label="Connection simulation">
+      <label><input type="checkbox" id="offline"> Simulate offline</label>
+      <label><input type="checkbox" id="lose-response"> Lose the next acknowledgement</label>
+      <button id="sync" type="button">Sync now</button>
+    </section>
+    <p id="status" role="status" aria-live="polite">Opening local storage…</p>
+    <form id="note-form">
+      <label for="note">Sample note</label>
+      <div class="compose"><input id="note" name="note" maxlength="200" required autocomplete="off" placeholder="Try: Water the sample plant"><button id="save" type="submit" disabled>Save locally</button></div>
+    </form>
+    <div class="columns">
+      <section aria-labelledby="outbox-title">
+        <div class="section-title"><h2 id="outbox-title">On this device</h2><span id="pending-count">0 pending</span></div>
+        <p class="hint">IndexedDB keeps the queue across page reloads.</p>
+        <ul id="outbox" class="notes"></ul>
+      </section>
+      <section aria-labelledby="server-title">
+        <div class="section-title"><h2 id="server-title">On the server</h2><span id="saved-count">0 saved</span></div>
+        <p class="hint">A note and its receipt commit in one transaction.</p>
+        <ul id="server-notes" class="notes"></ul>
+      </section>
+    </div>
+    <details>
+      <summary>Try the failure that matters</summary>
+      <ol><li>Select “Lose the next acknowledgement”.</li><li>Save a new sample note. The server commits it, then drops the connection.</li><li>The note stays in the outbox until the retry receives its receipt.</li><li>The server replays the result. Only one server note exists.</li></ol>
+      <p>Use fictitious text. This local lab demonstrates note creation; it does not implement user accounts, attachments or edits to shared records.</p>
+    </details>
+    <footer>Independent demonstration of public engineering patterns. Browser storage can be cleared or evicted.</footer>
+  </main>
+</body>
+</html>
