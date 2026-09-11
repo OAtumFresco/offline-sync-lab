@@ -5,10 +5,17 @@
   "license": "UNLICENSED",
   "type": "module",
   "description": "A small, runnable lab for a persistent browser outbox and idempotent HTTP delivery.",
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test",
-    "check": "node --check src/server.js && node --check src/store.js && node --check public/app.js && node --check public/outbox.js && node --check public/sync.js && node --check public/sw.js"
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/server.js && node --check src/store.js && node --check public/app.js && node --check public/outbox.js && node --check public/sync.js && node --check public/sw.js",
+    "test:browser": "playwright test",
+    "demo:record": "playwright test --config playwright.demo.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
   }
 }
