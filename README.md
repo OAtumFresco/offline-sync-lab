@@ -1,16 +1,24 @@
 # Offline Sync Lab
 
+[![Tests](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml) ![Node 22 and 24](docs/badges/node.svg) [![Release v0.1.0](docs/badges/version.svg)](https://github.com/OAtumFresco/offline-sync-lab/releases/tag/v0.1.0)
+
 **Keep a local write through disconnection. Recover a lost acknowledgement without duplicating the server effect.**
 
 [Português](README.pt.md) · [Tests](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml) · [Rui Andrade](https://github.com/OAtumFresco)
 
 A runnable browser outbox and HTTP server, implemented with IndexedDB, a service worker and SQLite. The interesting case happens when a write succeeds but its response never reaches the browser: the client cannot tell whether to retry. This lab makes that failure reproducible.
 
+## Watch it recover
+
+![Offline Sync Lab: recorded failure and recovery in the real browser](docs/demo.gif)
+
+Recorded from the actual interface, with assertions verifying the results. [MP4 video](https://github.com/OAtumFresco/offline-sync-lab/releases/download/v0.1.0/demo.mp4) · [Reproduce the recording](docs/verification.md).
+
 ![A browser persists a note, sends its stable operation key, and deletes the local entry only after a matching SQLite receipt returns.](docs/flow.svg)
 
 ## Run locally
 
-Requires **Node.js 22.13+** with `node:sqlite` available; use Node 22 or 24. SQLite may print an experimental warning on some versions. There are no npm dependencies or build steps.
+Requires **Node.js 22.13+** with `node:sqlite` available; use Node 22 or 24. SQLite may print an experimental warning on some versions. The application has no runtime npm dependencies or build step. Browser tests use Playwright as a development dependency.
 
 ```sh
 git clone https://github.com/OAtumFresco/offline-sync-lab.git
@@ -24,6 +32,16 @@ Open **http://127.0.0.1:4178**. Use the same hostname and port between visits; b
 npm run check
 npm test
 ```
+
+To run the browser tests:
+
+```sh
+npm ci
+npx playwright install chromium firefox webkit
+npm run test:browser
+```
+
+On Linux, use `npx playwright install --with-deps chromium firefox webkit` to include required system libraries.
 
 ## Try the failure
 
@@ -56,11 +74,11 @@ Transport can deliver a request repeatedly. The guarantee is **one stored effect
 - [`src/server.js`](src/server.js): bounded JSON input, loopback-only entry point and explicit response-loss injection.
 - [`public/sw.js`](public/sw.js): offline shell cache. API responses are never cached.
 
-The tests include real socket loss after commit, concurrent HTTP retries, rollback injection, database reopen, malformed acknowledgements and local queue failures. See [verification](docs/verification.md) for the manual browser protocol.
+The tests include real socket loss after commit, concurrent HTTP retries, rollback injection, database reopen, malformed acknowledgements and local queue failures. See [verification](docs/verification.md) for automated coverage and the manual browser protocol.
 
 ## Deliberate limits
 
-This is an append-only, single-user teaching implementation. It does not solve shared editing, conflict merges, attachments, account isolation, encryption or background delivery with the page closed. `navigator.onLine` is only a hint; actual failures keep the note queued. Retries continue while the page is open, with capped exponential backoff and jitter.
+This is an append-only, single-user teaching implementation. It does not solve shared editing, conflict merges, attachments, account isolation, encryption or background delivery with the page closed. A stale `navigator.onLine` value never blocks a delivery attempt; actual failures keep the note queued. Retries continue while the page is open, with capped exponential backoff and jitter.
 
 Browser storage may be cleared, denied or evicted. Server receipts are retained indefinitely here: a real service needs a documented retention period and a compatible client retry policy. Queue size, database growth and synchronous SQLite throughput are not production-budgeted. Local fault injection is enabled only by the demo entry point and defaults off when constructing the server.
 

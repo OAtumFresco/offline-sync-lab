@@ -1,16 +1,24 @@
 # Offline Sync Lab
 
+[![Tests](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml) ![Node 22 and 24](docs/badges/node.svg) [![Release v0.1.0](docs/badges/version.svg)](https://github.com/OAtumFresco/offline-sync-lab/releases/tag/v0.1.0)
+
 **Guardar uma operação sem ligação e recuperar uma confirmação perdida sem duplicar a escrita no servidor.**
 
 [English](README.md) · [Testes](https://github.com/OAtumFresco/offline-sync-lab/actions/workflows/test.yml) · [Rui Andrade](https://github.com/OAtumFresco)
 
 Uma fila de envio no navegador, acompanhada por um servidor HTTP executável. O caso central é uma escrita que chega à base de dados, mas cuja resposta se perde: o navegador precisa de repetir o pedido sem criar outra nota.
 
+## Ver em ação
+
+![Offline Sync Lab: demonstração real de falha e recuperação](docs/demo.gif)
+
+Gravação automática da interface, com verificações antes de cada resultado. [Vídeo MP4](https://github.com/OAtumFresco/offline-sync-lab/releases/download/v0.1.0/demo.mp4) · [Como reproduzir](docs/verification.md).
+
 ![A nota é guardada em IndexedDB, enviada com uma chave estável e retirada da fila apenas após receber a confirmação correspondente.](docs/flow.svg)
 
 ## Executar
 
-Requer **Node.js 22.13+**, com `node:sqlite` disponível. Usar Node 22 ou 24. Algumas versões apresentam um aviso experimental do SQLite. Não existem dependências npm nem compilação.
+Requer **Node.js 22.13+**, com `node:sqlite` disponível. Usar Node 22 ou 24. Algumas versões apresentam um aviso experimental do SQLite. A execução da aplicação não requer dependências npm nem compilação; os testes de navegador usam Playwright como dependência de desenvolvimento.
 
 ```sh
 git clone https://github.com/OAtumFresco/offline-sync-lab.git
@@ -24,6 +32,16 @@ Abrir **http://127.0.0.1:4178**. Manter o mesmo endereço e porta para conservar
 npm run check
 npm test
 ```
+
+Para testar no navegador:
+
+```sh
+npm ci
+npx playwright install chromium firefox webkit
+npm run test:browser
+```
+
+Em Linux, usar `npx playwright install --with-deps chromium firefox webkit` para instalar também as bibliotecas do sistema.
 
 ## Experiência
 
@@ -50,7 +68,7 @@ O [motor de sincronização](public/sync.js) valida as confirmações e distingu
 
 ## Limites
 
-Exemplo educativo para acrescentar notas de um utilizador. Não inclui edição colaborativa, resolução de conflitos, anexos, autenticação, isolamento de contas ou envio em segundo plano com a página fechada. A indicação `navigator.onLine` não garante acesso ao servidor; falhas reais conservam a fila.
+Exemplo educativo para acrescentar notas de um utilizador. Não inclui edição colaborativa, resolução de conflitos, anexos, autenticação, isolamento de contas ou envio em segundo plano com a página fechada. A indicação `navigator.onLine` não bloqueia uma tentativa de envio; falhas reais conservam a fila.
 
 O navegador pode apagar ou recusar armazenamento. Os recibos SQLite ficam guardados indefinidamente neste exemplo; em produção seria necessário definir retenção, limites de crescimento e uma política de repetição compatível. Não foram validados volumes de produção. O servidor usa apenas loopback e não está preparado para alojamento público. Usar dados fictícios.
 

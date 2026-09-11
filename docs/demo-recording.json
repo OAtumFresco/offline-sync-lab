@@ -1,0 +1,9 @@
+{
+  "source": "GitHub Actions browser-evidence artifact",
+  "run_url": "https://github.com/OAtumFresco/offline-sync-lab/actions/runs/34613128458",
+  "source_commit": "abf66098f52424546f4e370a2802b876de916dfb",
+  "original_sha256": "9c85ff040255a9e1baa2a6d0a06cb2cd376ce0faee9ac39dd13991ca49d00bd9",
+  "recording_command": "npm run demo:record",
+  "gif_conversion": "8 fps; width 880; 128-color palette; source UI states preserved",
+  "mp4_conversion": "H.264; CRF 24; yuv420p; faststart"
+}
